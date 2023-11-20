@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import './WeatherApp.css';
 
 import search_icon from '../Assets/search.png'
@@ -10,13 +10,26 @@ import rain_icon from '../Assets/rain.png'
 import snow_icon from '../Assets/snow.png'
 import wind_icon from '../Assets/wind.png'
 
+
 const WeatherApp = () => {
 
-	let api_key = ''; //your api key here
+	let api_key = '27c3536adea90ac099a53b9bb27d6ece';
 	const [wicon, setWicon] = useState(cloud_icon);
 	const [error, setErrorMessage] = useState("");
+	const humidity = document.getElementsByClassName("humidity-percent");
+	const wind = document.getElementsByClassName("wind-rate");
+	const temp = document.getElementsByClassName("weather-temp");
+	const location = document.getElementsByClassName("weather-location");
 	const [show, setShow] = useState(true);
-	const timer = setTimeout(() => { setShow(false); }, 4000);
+	setTimeout(() => { setShow(false); }, 4000);
+
+	let response_clear_icon_code = ["01d", "01n"];
+	let response_cloud_icon_code = ["02d", "02n"];
+	let response_drizzle_icon_code = ["03d", "03n", "04d", "04n"];
+	let response_rain_icon_code = ["09d", "09n", "010d", "010n"];
+	let response_snow_icon_code = ["013d", "013n"];
+
+
 
 	const Search = async () => {
 		const element = document.getElementsByClassName("CityInput");
@@ -34,46 +47,34 @@ const WeatherApp = () => {
 			let url = `https://api.openweathermap.org/data/2.5/weather?q=${search_txt}&units=Metric&appid=${api_key}`;
 
 			let response = await fetch(url);
-			let data = await response.json(); 
+			let data = await response.json(); 	
 
+			
 			if(data.cod !== '400' && data.cod !== '404')
 			{
-				
-				const humidity = document.getElementsByClassName("humidity-percent");
-				const wind = document.getElementsByClassName("wind-rate");
-				const temp = document.getElementsByClassName("weather-temp");
-				const location = document.getElementsByClassName("weather-location");
-
+				let response_icon = data.weather[0].icon;
 				humidity[0].innerHTML = data.main.humidity + '%';
 				wind[0].innerHTML = Math.floor(data.wind.speed) + 'km/h';
 				temp[0].innerHTML = Math.floor(data.main.temp)+"&deg C";
 				location[0].innerHTML = data.name;
 
-				if(data.weather[0].icon ==="01d" || data.weather[0].icon ==="01n")
+				if(response_clear_icon_code.includes(response_icon))
 				{
 					setWicon(clear_icon);
 				}
-				else if(data.weather[0].icon ==="02d" || data.weather[0].icon ==="02n")
+				else if(response_cloud_icon_code.includes(response_icon))
 				{
 					setWicon(cloud_icon);
 				}
-				else if(data.weather[0].icon ==="03d" || data.weather[0].icon ==="03n")
+				else if(response_drizzle_icon_code.includes(response_icon))
 				{
 					setWicon(drizzle_icon);
 				}
-				else if(data.weather[0].icon ==="04d" || data.weather[0].icon ==="04n")
-				{
-					setWicon(drizzle_icon);
-				}
-				else if(data.weather[0].icon ==="09d" || data.weather[0].icon ==="09n")
+				else if(response_rain_icon_code.includes(response_icon))
 				{
 					setWicon(rain_icon);
 				}
-				else if(data.weather[0].icon ==="010d" || data.weather[0].icon ==="010n")
-				{
-					setWicon(rain_icon);
-				}
-				else if(data.weather[0].icon ==="013d" || data.weather[0].icon ==="013n")
+				else if(response_snow_icon_code.includes(response_icon))
 				{
 					setWicon(snow_icon);
 				}
@@ -100,28 +101,27 @@ const WeatherApp = () => {
 				</div>
 			</div>
 			
-
-			
+		
 			<div className="error-msg">
 				{show && error}
 			</div>
 			<div className="weather-image">
 				<img src={wicon} alt=""/>
 			</div>
-			<div className="weather-temp">24&deg;C</div>
+			<div className="weather-temp">{temp}&deg;C</div>
 			<div className="weather-location">Kuala Lumpur</div>
 			<div className="data-container">
 				<div className="element">
 					<img src={humidity_icon} alt="" className="icon" />
 					<div className="data">
-						<div className="humidity-percent">60%</div>
+						<div className="humidity-percent">{humidity}%</div>
 						<div className="text">Humidity</div>						
 					</div>
 				</div>
 				<div className="element">
 					<img src={wind_icon} alt="" className="icon" />
 					<div className="data">
-						<div className="wind-rate">10km/h</div>
+						<div className="wind-rate">{wind}km/h</div>
 						<div className="text">Wind Speed</div>						
 					</div>
 				</div>
